@@ -111,6 +111,31 @@ bien verás un mensaje que empieza con `Hi tu-usuario!`.
 > *Personal Access Token*: en GitHub ve a **Settings → Developer settings →
 > Personal access tokens** y usa ese token en lugar de la contraseña.
 
+## 🖥️ Si usas una computadora compartida (laboratorio)
+
+En el laboratorio varias personas usan la misma compu. Si no tienes cuidado,
+vas a subir cambios **con la cuenta de otra persona** y el reto final no te va a contar.
+
+**Antes de empezar:**
+- En GitHub, revisa que el **avatar de arriba a la derecha sea el tuyo**. Si no, clic en el avatar → **Sign out** y entra con tu cuenta.
+- En Git Bash, revisa que el nombre y el correo sean los tuyos:
+  ```bash
+  git config --global user.name
+  git config --global user.email
+  ```
+  Si son de otra persona, vuelve a correr los comandos del paso 3 con tus datos.
+
+**Al terminar, siempre:**
+1. En GitHub: avatar → **Sign out**.
+2. En Git Bash, borra tu sesión guardada (cambia `TU-USUARIO`):
+   ```bash
+   git credential-manager github logout TU-USUARIO
+   ```
+
+> [!TIP]
+> Si el navegador te ofrece **traducir la página**, di que no. La traducción
+> cambia los nombres de los botones y desacomoda las tablas del robot.
+
 ## ✏️ Ejercicio
 
 Ejecuta estos tres comandos y verifica que los tres responden bien:

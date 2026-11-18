@@ -85,12 +85,21 @@ o de un equipo), hay cinco roles para dar a cada quien solo lo necesario:
 Aunque alguien tenga permiso de escritura, puedes impedir que suba cambios
 directo a `main` y obligar a que todo pase por un Pull Request:
 
-1. **Settings → Branches → Add branch ruleset** (o **Add classic branch
-   protection rule**, según lo que te muestre GitHub).
-2. Ponle un nombre y, en la rama a proteger, indica `main`.
-3. Activa **Require a pull request before merging**.
-4. Si quieres, pide también al menos **1 aprobación** antes de unir.
-5. Guarda.
+1. **Settings → Branches → Add classic branch protection rule**.
+2. En **Branch name pattern** escribe `main`.
+3. Marca **Require a pull request before merging**.
+4. Debajo se marca sola la casilla **Require approvals**: **desmárcala**.
+5. Clic en **Create**.
+
+> [!WARNING]
+> Si dejas marcado **Require approvals**, cada PR necesita que otra persona con
+> permiso lo apruebe. Como tú no puedes aprobar tus propios PRs, te vas a quedar
+> atorado. En un proyecto real con equipo sí se usa; para practicar, déjala apagada.
+
+> [!IMPORTANT]
+> Protege `main` **hasta que hayas terminado los módulos 03 al 07**. Con la rama
+> protegida, `git push` directo a `main` se rechaza y las ediciones en la página
+> se convierten en Pull Requests.
 
 > [!NOTE]
 > Con una cuenta gratuita, la protección de ramas solo se aplica en repos

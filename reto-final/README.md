@@ -99,6 +99,12 @@ El robot no se equivoca a propósito: cada ❌ tiene una causa. Busca tu mensaje
 | ❌ en **07** · `git pull` | No editaste en GitHub y luego hiciste `git pull` en tu compu | Haz el ejercicio del [módulo 07](../07-git-y-github-juntos/) y termina con `git push` |
 | ❌ en **08** · Rama protegida | No protegiste la rama `main` de tu `mi-primer-repo` | Sigue el paso 5 del [módulo 08](../08-permisos/) |
 
+
+**Otros problemas comunes:** si el PR se fue a tu propio repo, sale *Review required*,
+hay conflictos o te dice que no puedes aprobar tu propio PR, revisa la tabla
+*Problemas comunes* del [módulo 05](../05-colaborar/). Si la tabla del robot se ve
+desacomodada, desactiva la traducción del navegador.
+
 **Cuando lo arregles,** edita la descripción de tu Pull Request (agrega un espacio
 y guarda) para que el robot vuelva a revisar. **No abras otro PR.**
 
