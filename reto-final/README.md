@@ -79,6 +79,34 @@ tabla: ✅ lo que ya cumpliste y ❌ lo que te falta.
   (basta con agregar un espacio y guardar). El robot vuelve a revisar y
   actualiza su comentario.
 
+## Si el robot marca algo en rojo
+
+El robot no se equivoca a propósito: cada ❌ tiene una causa. Busca tu mensaje aquí.
+
+| El robot dice... | Por qué pasa | Cómo se arregla |
+|---|---|---|
+| Repo público `TU-USUARIO/mi-primer-repo`: **No existe, es privado o tiene otro nombre** | No creaste el repo, le pusiste otro nombre, es privado o lo hiciste con otra cuenta | Entra a `github.com/TU-USUARIO?tab=repositories`. Si tiene otro nombre: **Settings → Repository name** → `mi-primer-repo`. Si es privado: **Settings → Change visibility → Public**. Si no existe, haz el [módulo 03](../03-primer-repo/) |
+| **Solo debes modificar `reto-final/alumnos.md`** | Hiciste los ejercicios dentro de tu fork del curso, o editaste otros archivos | Cierra tu PR, borra tu fork (**Settings** → hasta abajo → **Delete this repository**), haz los ejercicios en tu `mi-primer-repo` y vuelve a hacer el reto desde un fork nuevo |
+| **Debes agregar exactamente una fila** | Agregaste más de una fila, o tu PR trae la fila de otra persona | Cada quien manda su propio PR desde su propia cuenta con **una sola** fila |
+| **No borres ni cambies las filas de tus compañeros** | Modificaste o borraste filas que ya estaban | Deja la tabla como estaba y agrega tu fila **al final** |
+| **El usuario de tu fila debe ser el tuyo** | Escribiste mal tu usuario o pusiste el de otra persona | Corrige el usuario en tu fila: debe ser el de la cuenta que mandó el PR |
+| **Tu fila debe tener las 4 columnas llenas** | Te faltó el nombre, el usuario, el grupo o la fecha | Llena las 4 columnas siguiendo el ejemplo |
+| ❌ en **02** · Commits ligados a tu cuenta | El correo de `git config` no es el de tu cuenta de GitHub | Revisa el [módulo 02](../02-instalacion/), corrige el correo y haz un commit nuevo con `git push` |
+| ❌ en **03** · README y 3 commits | Tu repo tiene menos de 3 commits o no tiene `README.md` | Haz el ejercicio del [módulo 03](../03-primer-repo/) |
+| ❌ en **04** · Unión de ramas | No hiciste el ejercicio del conflicto, o no lo subiste | Haz el ejercicio del [módulo 04](../04-ramas/) y termina con `git push` |
+| ❌ en **05** · Pull Request de un compañero | Nadie te mandó un PR, o no lo aceptaste | Pide a un compañero que te mande uno y dale **Merge** ([módulo 05](../05-colaborar/)) |
+| ❌ en **06** · `.gitignore` o Issue | Falta el `.gitignore` con `*.log` o no creaste ningún Issue | Haz el ejercicio del [módulo 06](../06-extras/) |
+| ❌ en **07** · `git pull` | No editaste en GitHub y luego hiciste `git pull` en tu compu | Haz el ejercicio del [módulo 07](../07-git-y-github-juntos/) y termina con `git push` |
+| ❌ en **08** · Rama protegida | No protegiste la rama `main` de tu `mi-primer-repo` | Sigue el paso 5 del [módulo 08](../08-permisos/) |
+
+**Cuando lo arregles,** edita la descripción de tu Pull Request (agrega un espacio
+y guarda) para que el robot vuelva a revisar. **No abras otro PR.**
+
+> [!NOTE]
+> Si ya revisaste todo y estás seguro de que el robot se equivoca, abre un
+> [Issue](https://github.com/git-master-utn/aprende-github/issues/new) con el
+> enlace a tu Pull Request y una captura.
+
 ## Reglas
 
 - Solo modifica `reto-final/alumnos.md`.

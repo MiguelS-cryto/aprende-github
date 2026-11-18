@@ -24,6 +24,7 @@ REPO_PRACTICA = "mi-primer-repo"
 ARCHIVO_LISTA = "reto-final/alumnos.md"
 MARCA = "<!-- verificador-reto -->"
 URL_CURSO = "https://github.com/git-master-utn/aprende-github"
+URL_AYUDA = URL_CURSO + "/tree/main/reto-final#si-el-robot-marca-algo-en-rojo"
 
 MODULOS = {
     "02": "02-instalacion",
@@ -202,11 +203,28 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
                       "un espacio) para que se vuelva a revisar.")
     if problemas:
         partes += ["", "### Tu Pull Request", ""] + [f"- ❌ {p}" for p in problemas]
+
+    pistas = []
+    if any(p.startswith("Solo debes modificar") for p in problemas):
+        pistas.append("Parece que hiciste los ejercicios **dentro de tu fork del curso**. Los ejercicios "
+                      f"van en tu propio repo `{REPO_PRACTICA}`. Cierra este PR, borra tu fork y vuelve a "
+                      "hacer el reto final desde un fork nuevo, agregando **solo** tu fila.")
+    if any(p.startswith("Debes agregar exactamente una fila") for p in problemas):
+        pistas.append("Cada alumno manda **su propio** Pull Request, desde su cuenta, con **una sola** fila.")
+    if info is None:
+        pistas.append(f"No encontré `{autor}/{REPO_PRACTICA}`. Crea en **tu** cuenta un repo **público** "
+                      f"llamado **exactamente** `{REPO_PRACTICA}` (módulo 03) y haz ahí los ejercicios. "
+                      "Si ya lo tienes, revisa que el nombre sea idéntico y que no sea privado.")
+    if pistas:
+        partes += ["", "### 💡 Pistas", ""] + [f"- {p}" for p in pistas]
     partes += ["", f"### Tu repositorio de práctica: [{autor}/{REPO_PRACTICA}]"
                f"(https://github.com/{autor}/{REPO_PRACTICA})", "", tabla_revisiones(res)]
     if info:
         partes += ["", f"Commits revisados: **{info['commits']}** · "
                        f"del **{info['desde']}** al **{info['hasta']}**"]
+    if not completo:
+        partes += ["", f"📖 ¿No entiendes algún ❌? Lee **[Si el robot marca algo en rojo]({URL_AYUDA})**. "
+                       "Cuando lo arregles, edita la descripción de este PR; **no abras otro**."]
     partes += ["", "<sub>El módulo 01 es teórico y se evalúa en clase.</sub>"]
     cuerpo = "\n".join(partes)
 
