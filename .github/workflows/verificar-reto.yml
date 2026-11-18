@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   verificar:
-    # No revisa los Pull Requests del dueño del repositorio
-    if: github.event.pull_request.user.login != github.repository_owner
+    # No revisa los Pull Requests de dueños, miembros de la organización ni colaboradores
+    if: ${{ !contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association) }}
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el script de main (no el código del Pull Request)

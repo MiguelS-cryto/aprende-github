@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 API = "https://api.github.com"
@@ -24,6 +25,10 @@ REPO_PRACTICA = "mi-primer-repo"
 ARCHIVO_LISTA = "reto-final/alumnos.md"
 MARCA = "<!-- verificador-reto -->"
 URL_CURSO = "https://github.com/git-master-utn/aprende-github"
+ETIQUETAS = {
+    True: ("✅ completo", "2da44e", "El alumno completó todos los módulos"),
+    False: ("❌ incompleto", "d1242f", "Al alumno le falta evidencia de algún módulo"),
+}
 URL_AYUDA = URL_CURSO + "/tree/main/reto-final#si-el-robot-marca-algo-en-rojo"
 
 MODULOS = {
@@ -235,6 +240,7 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
         api("PATCH", f"/repos/{repo}/issues/comments/{previo['id']}", {"body": cuerpo})
     else:
         api("POST", f"/repos/{repo}/issues/{numero}/comments", {"body": cuerpo})
+    etiquetar(repo, numero, completo)
 
     resumen = os.environ.get("GITHUB_STEP_SUMMARY")
     if resumen and resumen_en_log:
@@ -245,16 +251,28 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
     return completo
 
 
+def etiquetar(repo, numero, completo):
+    """Pone la etiqueta ✅ completo o ❌ incompleto y quita la contraria."""
+    for nombre, color, desc in ETIQUETAS.values():
+        api("POST", f"/repos/{repo}/labels",
+            {"name": nombre, "color": color, "description": desc})  # 422 si ya existe
+    poner, quitar = ETIQUETAS[completo][0], ETIQUETAS[not completo][0]
+    api("POST", f"/repos/{repo}/issues/{numero}/labels", {"labels": [poner]})
+    api("DELETE", f"/repos/{repo}/issues/{numero}/labels/{urllib.parse.quote(quitar)}")
+
+
 def prs_abiertos(repo):
-    """Lista (numero, autor) de los Pull Requests abiertos, sin los del dueño."""
-    duenio = repo.split("/")[0].lower()
+    """Lista (numero, autor) de los Pull Requests abiertos de alumnos.
+
+    Se omiten los de dueños, miembros de la organización y colaboradores."""
+    equipo = {"OWNER", "MEMBER", "COLLABORATOR"}
     lista, pagina = [], 1
     while True:
         st, prs = get(f"/repos/{repo}/pulls?state=open&per_page=100&page={pagina}")
         if st != 200 or not prs:
             break
         lista += [(p["number"], p["user"]["login"]) for p in prs
-                  if p["user"]["login"].lower() != duenio]
+                  if p.get("author_association") not in equipo]
         if len(prs) < 100:
             break
         pagina += 1
