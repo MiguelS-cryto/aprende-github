@@ -15,6 +15,8 @@ import json
 import os
 import re
 import sys
+import time
+from datetime import datetime, timedelta, timezone
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -179,9 +181,13 @@ def tabla_revisiones(res):
     return "\n".join(lineas)
 
 
+FILA_DEL_PR = {}  # celdas de la última fila revisada, para agregarla a la lista
+
+
 def revisar_fila(repo, numero, autor):
     """Revisa que el PR solo agregue una fila válida del propio autor."""
     problemas = []
+    FILA_DEL_PR.clear()
     _, archivos = get(f"/repos/{repo}/pulls/{numero}/files?per_page=100")
     archivos = archivos or []
     nombres = [a["filename"] for a in archivos]
@@ -215,7 +221,42 @@ def revisar_fila(repo, numero, autor):
     m = re.search(r"github\.com/([A-Za-z0-9-]+)", fila) or re.search(r"@([A-Za-z0-9-]+)", fila)
     if not m or m.group(1).lower() != autor.lower():
         problemas.append(f"El usuario de tu fila debe ser el tuyo: `@{autor}`")
+    if len(celdas) == 4:
+        FILA_DEL_PR.update(nombre=celdas[0], grupo=celdas[2])
     return problemas
+
+
+def limpiar(texto, largo):
+    """Deja solo texto plano en una celda (sin enlaces, HTML ni separadores de tabla)."""
+    texto = re.sub(r"<[^>]*>|https?://\S+|www\.\S+", "", texto)
+    texto = re.sub(r"[|<>\[\]()`*_~#!\\]", "", texto)
+    return " ".join(texto.split())[:largo] or "—"
+
+
+def agregar_a_lista(repo, autor):
+    """Agrega la fila del alumno a reto-final/alumnos.md en main. Devuelve True si quedó en la lista."""
+    nombre = limpiar(FILA_DEL_PR.get("nombre", autor), 80)
+    grupo = limpiar(FILA_DEL_PR.get("grupo", ""), 20)
+    hoy = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
+    fila = f"| {nombre} | [@{autor}](https://github.com/{autor}) | {grupo} | {hoy} |"
+    ruta = f"/repos/{repo}/contents/{ARCHIVO_LISTA}"
+    for _ in range(5):  # reintenta si otro alumno se agregó al mismo tiempo
+        st, actual = get(ruta)
+        if st != 200 or not actual:
+            return False
+        texto = base64.b64decode(actual["content"]).decode()
+        if re.search(rf"github\.com/{re.escape(autor)}\)", texto, re.IGNORECASE):
+            return True  # ya estaba
+        nuevo = texto.rstrip("\n") + "\n" + fila + "\n"
+        st, _ = api("PUT", ruta, {
+            "message": f"Agrego a {nombre} (@{autor}) a la lista de alumnos",
+            "content": base64.b64encode(nuevo.encode()).decode(),
+            "sha": actual["sha"],
+        })
+        if st in (200, 201):
+            return True
+        time.sleep(2)
+    return False
 
 
 def modo_pr():
@@ -228,12 +269,20 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
     problemas = revisar_fila(repo, numero, autor)
     res, info = revisar(autor)
     completo = not problemas and all(r[2] for r in res)
+    en_lista = completo and agregar_a_lista(repo, autor)
 
     partes = [MARCA, f"## 🔎 Verificación del curso para @{autor}", "",
               f"**Calificación: {fmt(calificacion(res))} / {fmt(TOTAL)}**", ""]
     if completo:
-        partes.append("✅ **Todo completo.** Tu repositorio de práctica tiene la evidencia de "
-                      "todos los módulos. El instructor ya puede aceptar tu Pull Request.")
+        if en_lista:
+            partes.append(f"🎉 **¡Felicidades, terminaste el curso!** Tu repositorio de práctica tiene "
+                          f"la evidencia de todos los módulos y ya apareces en la "
+                          f"[lista de alumnos]({URL_CURSO}/blob/main/{ARCHIVO_LISTA}). "
+                          "Cerré este Pull Request porque ya no hace falta: tu fila ya está en la lista.")
+        else:
+            partes.append("✅ **Todo completo.** Tu repositorio de práctica tiene la evidencia de "
+                          "todos los módulos. No pude agregarte a la lista automáticamente; "
+                          "el instructor lo hará a mano.")
     else:
         partes.append("❌ **Todavía falta algo.** Revisa lo que está en rojo, complétalo y "
                       "después **edita la descripción de este Pull Request** (basta con agregar "
@@ -273,6 +322,8 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
     else:
         api("POST", f"/repos/{repo}/issues/{numero}/comments", {"body": cuerpo})
     etiquetar(repo, numero, completo)
+    if en_lista:
+        api("PATCH", f"/repos/{repo}/pulls/{numero}", {"state": "closed"})
 
     resumen = os.environ.get("GITHUB_STEP_SUMMARY")
     if resumen and resumen_en_log:

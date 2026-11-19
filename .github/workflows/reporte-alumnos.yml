@@ -15,7 +15,7 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write   # para agregar a los alumnos completos a la lista
   issues: write
   pull-requests: write
 

@@ -77,7 +77,7 @@ En el título escribe `Reto final: Tu Nombre` y llena la lista de la descripció
 En un minuto aparece un **comentario automático** en tu Pull Request con una
 tabla: ✅ lo que ya cumpliste y ❌ lo que te falta.
 
-- Si todo sale en ✅, el instructor acepta tu Pull Request.
+- Si todo sale en ✅ (10 / 10), el robot **te agrega solo a la [lista de alumnos](alumnos.md)** y cierra tu Pull Request con un mensaje de felicitación. Que se cierre es normal: tu fila ya quedó en la lista.
 - Si algo sale en ❌, ve al módulo indicado, haz el ejercicio en tu
   `mi-primer-repo` y después **edita la descripción de tu Pull Request**
   (basta con agregar un espacio y guardar). El robot vuelve a revisar y
