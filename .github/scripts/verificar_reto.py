@@ -42,6 +42,34 @@ MODULOS = {
 }
 
 
+# Evidencias que se revisan, en orden, con sus puntos (suman 10).
+# Pesan más los ejercicios más difíciles: conflicto, colaborar y sincronizar.
+EVIDENCIAS = [
+    ("02", "Commits ligados a tu cuenta (correo bien configurado)", 0.5),
+    ("03", "README.md y al menos 3 commits", 1),
+    ("04", "Unión de ramas hecha en tu computadora (ejercicio del conflicto)", 2),
+    ("05", "Aceptaste un Pull Request de un compañero", 2),
+    ("06", "`.gitignore` que ignora archivos `.log`", 0.5),
+    ("06", "Al menos un Issue creado", 0.5),
+    ("07", "Sincronizaste con `git pull` después de editar en GitHub", 2),
+    ("08", "Rama `main` protegida", 1.5),
+]
+TOTAL = sum(p for _, _, p in EVIDENCIAS)
+
+
+def fmt(n):
+    return str(int(n)) if float(n).is_integer() else str(n)
+
+
+def con_puntos(res):
+    """Agrega a cada revisión sus puntos: (modulo, descripcion, ok, detalle, puntos)."""
+    return [r + (EVIDENCIAS[i][2],) for i, r in enumerate(res)]
+
+
+def calificacion(res):
+    return sum(pts for _, _, ok, _, pts in res if ok)
+
+
 def api(metodo, ruta, datos=None):
     req = urllib.request.Request(API + ruta, method=metodo)
     req.add_header("Accept", "application/vnd.github+json")
@@ -76,9 +104,10 @@ def revisar(usuario):
 
     st, repo = get(base)
     if st != 200:
-        res.append(("03", f"Repo público `{usuario}/{REPO_PRACTICA}`", False,
-                    "No existe, es privado o tiene otro nombre"))
-        return res, None
+        res = [(m, d, False, "Sin repo de práctica") for m, d, _ in EVIDENCIAS]
+        res[1] = ("03", f"Repo público `{usuario}/{REPO_PRACTICA}` con README.md y al menos 3 commits",
+                  False, "No existe, es privado o tiene otro nombre")
+        return con_puntos(res), None
     rama = repo["default_branch"]
 
     _, commits = get(f"{base}/commits?sha={rama}&per_page=100")
@@ -137,14 +166,16 @@ def revisar(usuario):
     fechas = sorted(c["commit"]["author"]["date"][:10] for c in commits)
     info = {"commits": len(commits), "desde": fechas[0] if fechas else "",
             "hasta": fechas[-1] if fechas else ""}
-    return res, info
+    return con_puntos(res), info
 
 
 def tabla_revisiones(res):
-    lineas = ["| Módulo | Evidencia | Estado | Detalle |", "|:-:|---|:-:|---|"]
-    for mod, desc, ok, det in res:
+    lineas = ["| Módulo | Evidencia | Estado | Puntos | Detalle |", "|:-:|---|:-:|:-:|---|"]
+    for mod, desc, ok, det, pts in res:
         enlace = f"[{mod}]({URL_CURSO}/tree/main/{MODULOS[mod]})"
-        lineas.append(f"| {enlace} | {desc} | {'✅' if ok else '❌'} | {det} |")
+        lineas.append(f"| {enlace} | {desc} | {'✅' if ok else '❌'} | "
+                      f"{fmt(pts if ok else 0)} / {fmt(pts)} | {det} |")
+    lineas.append(f"| | **Calificación** | | **{fmt(calificacion(res))} / {fmt(TOTAL)}** | |")
     return "\n".join(lineas)
 
 
@@ -196,9 +227,10 @@ def verificar_pr(repo, numero, autor, resumen_en_log=True):
     """Revisa un PR, deja (o actualiza) el comentario del robot y dice si está completo."""
     problemas = revisar_fila(repo, numero, autor)
     res, info = revisar(autor)
-    completo = not problemas and all(ok for _, _, ok, _ in res)
+    completo = not problemas and all(r[2] for r in res)
 
-    partes = [MARCA, f"## 🔎 Verificación del curso para @{autor}", ""]
+    partes = [MARCA, f"## 🔎 Verificación del curso para @{autor}", "",
+              f"**Calificación: {fmt(calificacion(res))} / {fmt(TOTAL)}**", ""]
     if completo:
         partes.append("✅ **Todo completo.** Tu repositorio de práctica tiene la evidencia de "
                       "todos los módulos. El instructor ya puede aceptar tu Pull Request.")
@@ -307,11 +339,11 @@ def modo_todos():
               f"Repositorio revisado de cada alumno: `USUARIO/{REPO_PRACTICA}`", "",
               f"Pull Requests abiertos de alumnos: **{len(abiertos)}** · "
               f"alumnos revisados: **{len(usuarios)}**", "",
-              "| Alumno | PR | " + " | ".join(cols) + " | Avance | Commits | Periodo |",
-              "|---|---|" + "|".join(":-:" for _ in cols) + "|:-:|:-:|---|"]
+              "| Alumno | PR | " + " | ".join(cols) + " | Avance | Calificación | Commits | Periodo |",
+              "|---|---|" + "|".join(":-:" for _ in cols) + "|:-:|:-:|:-:|---|"]
     for u in usuarios:
         res, info = revisar(u)
-        por_mod = {m: [ok for mod, _, ok, _ in res if mod == m] for m in cols}
+        por_mod = {m: [r[2] for r in res if r[0] == m] for m in cols}
         marcas = [("✅" if por_mod[m] and all(por_mod[m]) else "❌") for m in cols]
         hechos = marcas.count("✅")
         periodo = f"{info['desde']} → {info['hasta']}" if info else "sin repo"
@@ -319,9 +351,9 @@ def modo_todos():
         prs = " ".join(f"[#{n}](https://github.com/{repo}/pull/{n})"
                        for n in pr_de.get(u.lower(), [])) or "—"
         lineas.append(f"| [@{u}](https://github.com/{u}/{REPO_PRACTICA}) | {prs} | "
-                      + " | ".join(marcas) + f" | {hechos}/{len(cols)} | {commits} | {periodo} |")
+                      + " | ".join(marcas) + f" | {hechos}/{len(cols)} | {fmt(calificacion(res))} / {fmt(TOTAL)} | {commits} | {periodo} |")
     if not usuarios:
-        lineas.append("| (no hay alumnos registrados todavía) |" + " |" * (len(cols) + 4))
+        lineas.append("| (no hay alumnos registrados todavía) |" + " |" * (len(cols) + 5))
     if comentar:
         lineas += ["", f"Se dejó o actualizó el comentario del robot en {len(abiertos)} Pull Requests."]
     lineas += ["", "Módulos: 02 correo ligado a la cuenta · 03 README y 3 commits · "

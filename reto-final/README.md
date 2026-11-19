@@ -13,15 +13,19 @@ se acepta si tu repositorio de práctica tiene la evidencia de cada módulo.
 Todo se revisa en **tu** repositorio `mi-primer-repo` (el que creaste en el
 módulo 03). Debe ser **público** y llamarse **exactamente** `mi-primer-repo`.
 
-| Módulo | Evidencia que se revisa |
-|:-:|---|
-| [02](../02-instalacion/) | Tus commits aparecen ligados a tu cuenta (configuraste el correo correcto) |
-| [03](../03-primer-repo/) | El repo tiene `README.md` y al menos 3 commits |
-| [04](../04-ramas/) | Hay una unión de ramas hecha en tu computadora (el ejercicio del conflicto) |
-| [05](../05-colaborar/) | Aceptaste un Pull Request de un compañero |
-| [06](../06-extras/) | Tiene un `.gitignore` que ignora archivos `.log` y al menos un Issue |
-| [07](../07-git-y-github-juntos/) | Hiciste `git pull` para unir un cambio que hiciste desde la página de GitHub |
-| [08](../08-permisos/) | La rama `main` está protegida |
+| Módulo | Evidencia que se revisa | Puntos |
+|:-:|---|:-:|
+| [02](../02-instalacion/) | Tus commits aparecen ligados a tu cuenta (configuraste el correo correcto) | 0.5 |
+| [03](../03-primer-repo/) | El repo tiene `README.md` y al menos 3 commits | 1 |
+| [04](../04-ramas/) | Hay una unión de ramas hecha en tu computadora (el ejercicio del conflicto) | 2 |
+| [05](../05-colaborar/) | Aceptaste un Pull Request de un compañero | 2 |
+| [06](../06-extras/) | Tiene un `.gitignore` que ignora archivos `.log` | 0.5 |
+| [06](../06-extras/) | Tiene al menos un Issue | 0.5 |
+| [07](../07-git-y-github-juntos/) | Hiciste `git pull` para unir un cambio que hiciste desde la página de GitHub | 2 |
+| [08](../08-permisos/) | La rama `main` está protegida | 1.5 |
+| | **Total** | **10** |
+
+Los ejercicios más difíciles (conflictos, colaborar y sincronizar) valen más.
 
 El módulo 01 es teórico y se evalúa en clase.
 
