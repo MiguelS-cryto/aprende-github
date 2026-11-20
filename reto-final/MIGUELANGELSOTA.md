@@ -130,6 +130,13 @@ y guarda) para que el robot vuelva a revisar. **No abras otro PR.**
 > `git merge main`. Resuelve el conflicto como en el
 > [módulo 04](../04-ramas/) y vuelve a hacer `git push`.
 
+git clone git@github.com:TU-USUARIO/aprende-github.git
+cd aprende-github
+git add reto-final/alumnos.md
+git commit -m "MiguelS-cryto"
+git push -u origin agrega-tu-nombre
+
+git switch -c agrega-tu-nombre
 ---
 
 [⬅️ Anterior: 08 · Permisos](../08-permisos/) · [🏠 Inicio](../README.md)
